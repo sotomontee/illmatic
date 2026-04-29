@@ -32,6 +32,15 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
+    /* Prevent sidebar from collapsing */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    [data-testid="stSidebar"] {
+        min-width: 240px !important;
+        max-width: 240px !important;
+    }
+
     /* Sidebar styling */
     [data-testid="stSidebar"] {
         background-color: #0f1117;
