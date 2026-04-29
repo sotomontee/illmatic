@@ -169,6 +169,7 @@ with st.sidebar:
         "NAV",
         [
             "⚡ Dashboard",
+            "🤖 Research Assistant",
             "📊 Data Explorer",
             "🛢️ Commodities",
             "📐 Spreads & Ratios",
@@ -183,14 +184,69 @@ with st.sidebar:
     st.markdown(
         '<p style="font-size:0.65rem; letter-spacing:0.08em; color:#555;">'
         'FRED · ECB · BIS · IMF · OECD<br>EIA · EUROSTAT · WORLD BANK'
-        '</p>',
+        '<br><br>POWERED BY CLAUDE</p>',
         unsafe_allow_html=True,
     )
+
+    # ── Quick Ask (floating mini-chat) ─────────────────────────
+    if page != "🤖 Research Assistant":
+        with st.expander("💬 Quick Ask", expanded=False):
+            from data_layer import _get_secret
+            quick_key = _get_secret("ANTHROPIC_API_KEY")
+            if quick_key:
+                quick_q = st.text_input("Ask anything...", key="quick_ask_input", label_visibility="collapsed",
+                                         placeholder="e.g. What's Brent at?")
+                if quick_q:
+                    try:
+                        from anthropic import Anthropic
+                        from views.research_assistant import SYSTEM_PROMPT, TOOLS, _execute_tool
+                        client = Anthropic(api_key=quick_key)
+                        with st.spinner("..."):
+                            resp = client.messages.create(
+                                model="claude-sonnet-4-20250514",
+                                max_tokens=1024,
+                                system=SYSTEM_PROMPT + "\nBe very concise — this is a quick sidebar chat. 2-3 sentences max.",
+                                tools=TOOLS,
+                                messages=[{"role": "user", "content": quick_q}],
+                            )
+                            # Handle tool use
+                            while resp.stop_reason == "tool_use":
+                                tool_results = []
+                                for block in resp.content:
+                                    if block.type == "tool_use":
+                                        result = _execute_tool(block.name, block.input)
+                                        tool_results.append({
+                                            "type": "tool_result",
+                                            "tool_use_id": block.id,
+                                            "content": result,
+                                        })
+                                msgs = [
+                                    {"role": "user", "content": quick_q},
+                                    {"role": "assistant", "content": resp.content},
+                                    {"role": "user", "content": tool_results},
+                                ]
+                                resp = client.messages.create(
+                                    model="claude-sonnet-4-20250514",
+                                    max_tokens=1024,
+                                    system=SYSTEM_PROMPT + "\nBe very concise — this is a quick sidebar chat. 2-3 sentences max.",
+                                    tools=TOOLS,
+                                    messages=msgs,
+                                )
+                            # Show answer
+                            answer = "".join(b.text for b in resp.content if hasattr(b, "text"))
+                            st.markdown(answer)
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+            else:
+                st.caption("Add ANTHROPIC_API_KEY to enable.")
 
 # ── Page routing ────────────────────────────────────────────────
 if page == "⚡ Dashboard":
     from views import dashboard
     dashboard.render()
+elif page == "🤖 Research Assistant":
+    from views import research_assistant
+    research_assistant.render()
 elif page == "📊 Data Explorer":
     from views import data_explorer
     data_explorer.render()
