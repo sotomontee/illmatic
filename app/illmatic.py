@@ -36,16 +36,19 @@ st.markdown("""
     [data-testid="collapsedControl"] {
         display: none !important;
     }
-    [data-testid="stSidebar"] {
-        transform: none !important;
-        position: relative !important;
-        visibility: visible !important;
-    }
 
     /* Sidebar styling */
     [data-testid="stSidebar"] {
-        background-color: #0f1117;
+        background-color: #0f1117 !important;
         padding-top: 1rem;
+        min-width: 260px !important;
+        width: 260px !important;
+        transform: none !important;
+        visibility: visible !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #0f1117 !important;
+        width: 260px !important;
     }
     [data-testid="stSidebar"] * {
         color: #e0e0e0 !important;
