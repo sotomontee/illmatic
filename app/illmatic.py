@@ -36,9 +36,8 @@ st.markdown("""
     [data-testid="collapsedControl"] {
         display: none !important;
     }
-    [data-testid="stSidebar"] {
-        min-width: 240px !important;
-        max-width: 240px !important;
+    section[data-testid="stSidebar"] > div {
+        width: 100% !important;
     }
 
     /* Sidebar styling */
