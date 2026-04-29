@@ -42,8 +42,8 @@ def _get_latest_with_change(series_id: str, label: str) -> dict:
         delta = latest - prev
         pct = (delta / prev) * 100 if prev != 0 else 0
         return {"label": label, "value": latest, "delta": delta, "pct": pct, "df": df}
-    except Exception:
-        return {"label": label, "value": None, "delta": None}
+    except Exception as e:
+        return {"label": label, "value": None, "delta": None, "error": str(e)}
 
 
 def _mini_sparkline(df: pd.DataFrame, color: str = "#2563eb") -> go.Figure:
@@ -83,6 +83,13 @@ def render():
     with st.spinner("Loading energy prices..."):
         for label, sid in ENERGY_WATCHLIST.items():
             energy_data[label] = _get_latest_with_change(sid, label)
+
+    # Surface any API errors (remove this block once things are working)
+    errors = {k: v.get("error") for k, v in energy_data.items() if v.get("error")}
+    if errors:
+        with st.expander("⚠️ API errors (click to debug)", expanded=True):
+            for k, e in errors.items():
+                st.code(f"{k}: {e}")
 
     cols = st.columns(len(ENERGY_WATCHLIST))
     for col, (label, data) in zip(cols, energy_data.items()):
