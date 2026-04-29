@@ -13,7 +13,7 @@ ENERGY_WATCHLIST = {
     "Brent": "DCOILBRENTEU",
     "WTI": "DCOILWTICO",
     "Henry Hub": "DHHNGSP",
-    "RBOB Gas": "GASREGCOASTW",
+    "RBOB Gas": "GASDESW",
 }
 
 MACRO_WATCHLIST = {

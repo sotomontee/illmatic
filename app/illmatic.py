@@ -36,8 +36,10 @@ st.markdown("""
     [data-testid="collapsedControl"] {
         display: none !important;
     }
-    section[data-testid="stSidebar"] > div {
-        width: 100% !important;
+    [data-testid="stSidebar"] {
+        transform: none !important;
+        position: relative !important;
+        visibility: visible !important;
     }
 
     /* Sidebar styling */
